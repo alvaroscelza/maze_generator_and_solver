@@ -112,9 +112,29 @@ class AStarMaze:
             first_position = 0
             total_path.insert(first_position, current_node)
             current_node = current_node.came_from
+        return total_path
 
     def get_neighbours(self, current_node):
-        return 0
+        neighbours = []
+        steps = [-1, 0, +1]
+        for x in steps:
+            for y in steps:
+                if x == 0 and y == 0:
+                    # This is the current_node, skip.
+                    pass
+                else:
+                    current_row = current_node.row_number + x
+                    current_column = current_node.column_number + y
+                    negative_row_or_column = current_row < 0 or current_column < 0
+                    surpassed_length = current_row > len(self.grid) or current_column > len(self.grid[current_row])
+                    if negative_row_or_column or surpassed_length:
+                        # We moved out of the grid, skip.
+                        pass
+                    else:
+                        neighbours.append(self.grid[current_row][current_column])
+        return neighbours
 
-    def distance(self, current_node, neighbour):
-        return 0
+    @staticmethod
+    def distance(current_node, neighbour):
+        # Since this is a simple grid, every node is adjacent to its neighbours. Therefore, distance is 1.
+        return 1
