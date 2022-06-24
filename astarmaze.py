@@ -1,6 +1,9 @@
 import enum
 import math
 
+from colorama import Fore
+from colorama import Style
+
 
 class AStarCellStatus(enum.Enum):
     Unknown = '0'
@@ -36,7 +39,19 @@ class AStarCell:
         self.guess_of_how_cheap_from_start_to_goal_through_me = math.inf
 
     def __repr__(self):
-        return self.status.value
+        if self.status == AStarCellStatus.Unknown:
+            return f"{Fore.BLACK}{self.status.value}{Style.RESET_ALL}"
+        elif self.status == AStarCellStatus.Discovered:
+            return f"{Fore.WHITE}{self.status.value}{Style.RESET_ALL}"
+        elif self.status == AStarCellStatus.Visited:
+            return f"{Fore.RED}{self.status.value}{Style.RESET_ALL}"
+        elif self.status == AStarCellStatus.Hampered:
+            return f"{Fore.BLUE}{self.status.value}{Style.RESET_ALL}"
+        elif self.status == AStarCellStatus.SolutionPath:
+            return f"{Fore.GREEN}{self.status.value}{Style.RESET_ALL}"
+        else:
+            # Failure: status non existent
+            return 'something weird happened: this status is not recognized. {}'.format(self.status.value)
 
 
 class AStarMaze:
@@ -50,23 +65,71 @@ class AStarMaze:
             for column in range(columns_amount):
                 new_cell = AStarCell(row_number=row, column_number=column)
                 self.grid[row].append(new_cell)
-        self.goal = self.grid[0][-1]
+        self.goal = self.grid[3][18]
+        self.goal.status = AStarCellStatus.SolutionPath
         self.generate_obstacles()
 
     def generate_obstacles(self):
-        self.grid[3][3].status = AStarCellStatus.Hampered
-        self.grid[3][4].status = AStarCellStatus.Hampered
-        self.grid[3][5].status = AStarCellStatus.Hampered
-        self.grid[4][5].status = AStarCellStatus.Hampered
-        self.grid[5][5].status = AStarCellStatus.Hampered
         self.grid[6][5].status = AStarCellStatus.Hampered
+        self.grid[6][6].status = AStarCellStatus.Hampered
+        self.grid[6][7].status = AStarCellStatus.Hampered
+        self.grid[6][8].status = AStarCellStatus.Hampered
+        self.grid[6][9].status = AStarCellStatus.Hampered
+        self.grid[6][10].status = AStarCellStatus.Hampered
+        self.grid[6][11].status = AStarCellStatus.Hampered
+        self.grid[6][12].status = AStarCellStatus.Hampered
+        self.grid[6][13].status = AStarCellStatus.Hampered
+        self.grid[6][14].status = AStarCellStatus.Hampered
+        self.grid[6][15].status = AStarCellStatus.Hampered
+
+        self.grid[7][5].status = AStarCellStatus.Hampered
+        self.grid[7][6].status = AStarCellStatus.Hampered
+        self.grid[7][7].status = AStarCellStatus.Hampered
+        self.grid[7][8].status = AStarCellStatus.Hampered
+        self.grid[7][9].status = AStarCellStatus.Hampered
+        self.grid[7][10].status = AStarCellStatus.Hampered
+        self.grid[7][11].status = AStarCellStatus.Hampered
+        self.grid[7][12].status = AStarCellStatus.Hampered
+        self.grid[7][13].status = AStarCellStatus.Hampered
+        self.grid[7][14].status = AStarCellStatus.Hampered
+        self.grid[7][15].status = AStarCellStatus.Hampered
+
+        self.grid[8][5].status = AStarCellStatus.Hampered
+        self.grid[8][6].status = AStarCellStatus.Hampered
+        self.grid[8][7].status = AStarCellStatus.Hampered
+        self.grid[8][8].status = AStarCellStatus.Hampered
+        self.grid[8][9].status = AStarCellStatus.Hampered
+        self.grid[8][10].status = AStarCellStatus.Hampered
+        self.grid[8][11].status = AStarCellStatus.Hampered
+        self.grid[8][12].status = AStarCellStatus.Hampered
+        self.grid[8][13].status = AStarCellStatus.Hampered
+        self.grid[8][14].status = AStarCellStatus.Hampered
+        self.grid[8][15].status = AStarCellStatus.Hampered
+
+        self.grid[9][13].status = AStarCellStatus.Hampered
+        self.grid[9][14].status = AStarCellStatus.Hampered
+        self.grid[9][15].status = AStarCellStatus.Hampered
+
+        self.grid[10][13].status = AStarCellStatus.Hampered
+        self.grid[10][14].status = AStarCellStatus.Hampered
+        self.grid[10][15].status = AStarCellStatus.Hampered
+
+        self.grid[11][13].status = AStarCellStatus.Hampered
+        self.grid[11][14].status = AStarCellStatus.Hampered
+        self.grid[11][15].status = AStarCellStatus.Hampered
+
+        self.grid[12][13].status = AStarCellStatus.Hampered
+        self.grid[12][14].status = AStarCellStatus.Hampered
+        self.grid[12][15].status = AStarCellStatus.Hampered
+
+        self.grid[13][13].status = AStarCellStatus.Hampered
+        self.grid[13][14].status = AStarCellStatus.Hampered
+        self.grid[13][15].status = AStarCellStatus.Hampered
 
     def print(self):
         print('')
-        print('********************')
         for row in self.grid:
             print(row)
-        print('********************')
         print('')
 
     def solve_using_a_star_algorithm(self):
@@ -74,12 +137,11 @@ class AStarMaze:
         start.cheapest_path_cost_from_start = 0
         start.guess_of_how_cheap_from_start_to_goal_through_me = self.heuristic_function(start)
         self.discovered_nodes.append(start)
-        start.status = AStarCellStatus.Discovered
 
         while self.discovered_nodes:
-            self.print()
             current_node = self.get_node_with_lowest_guest_of_how_cheap()
             current_node.status = AStarCellStatus.Visited
+            self.print()
             if current_node == self.goal:
                 # Success
                 self.reconstruct_path()
@@ -96,6 +158,7 @@ class AStarMaze:
                     if neighbour not in self.discovered_nodes:
                         neighbour.status = AStarCellStatus.Discovered
                         self.discovered_nodes.append(neighbour)
+            self.print()
         return False  # Failure: discovered_nodes is empty but goal was not reached.
 
     def heuristic_function(self, cell):
@@ -117,6 +180,7 @@ class AStarMaze:
         while current_node.came_from:
             current_node.status = AStarCellStatus.SolutionPath
             current_node = current_node.came_from
+        current_node.status = AStarCellStatus.SolutionPath
 
     def get_neighbours(self, current_node):
         neighbours = []
@@ -135,7 +199,12 @@ class AStarMaze:
                         # We moved out of the grid, skip.
                         pass
                     else:
-                        neighbours.append(self.grid[current_row][current_column])
+                        tentative_neighbour = self.grid[current_row][current_column]
+                        if tentative_neighbour.status == AStarCellStatus.Hampered:
+                            # We reached an obstacle, skip.
+                            pass
+                        else:
+                            neighbours.append(self.grid[current_row][current_column])
         return neighbours
 
     @staticmethod
