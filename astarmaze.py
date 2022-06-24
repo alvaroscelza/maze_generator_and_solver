@@ -7,6 +7,7 @@ class AStarCellStatus(enum.Enum):
     Discovered = '1'
     Visited = '2'
     Hampered = '3'
+    SolutionPath = '4'
 
 
 class AStarCell:
@@ -69,25 +70,30 @@ class AStarMaze:
         print('')
 
     def solve_using_a_star_algorithm(self):
-        start = self.grid[0][0]
+        start = self.grid[-1][0]
         start.cheapest_path_cost_from_start = 0
         start.guess_of_how_cheap_from_start_to_goal_through_me = self.heuristic_function(start)
         self.discovered_nodes.append(start)
+        start.status = AStarCellStatus.Discovered
 
         while self.discovered_nodes:
+            self.print()
             current_node = self.get_node_with_lowest_guest_of_how_cheap()
+            current_node.status = AStarCellStatus.Visited
             if current_node == self.goal:
-                return self.reconstruct_path()
+                # Success
+                self.reconstruct_path()
 
             self.discovered_nodes.remove(current_node)
             current_neighbours = self.get_neighbours(current_node)
             for neighbour in current_neighbours:
-                tentative_cheapest_path_from_start = neighbour.cheapest_path_cost_from_start + self.distance(current_node, neighbour)
-                if tentative_cheapest_path_from_start < neighbour.cheapest_path_cost_from_start:
+                tentative_cheapest_path_from_start = current_node.cheapest_path_cost_from_start + self.distance(current_node, neighbour)
+                if tentative_cheapest_path_from_start < neighbour.cheapest_path_cost_from_start or neighbour.cheapest_path_cost_from_start == math.inf:
                     neighbour.came_from = current_node
                     neighbour.cheapest_path_cost_from_start = tentative_cheapest_path_from_start
                     neighbour.guess_of_how_cheap_from_start_to_goal_through_me = tentative_cheapest_path_from_start + self.heuristic_function(neighbour)
                     if neighbour not in self.discovered_nodes:
+                        neighbour.status = AStarCellStatus.Discovered
                         self.discovered_nodes.append(neighbour)
         return False  # Failure: discovered_nodes is empty but goal was not reached.
 
@@ -98,21 +104,18 @@ class AStarMaze:
 
     def get_node_with_lowest_guest_of_how_cheap(self):
         current_lowest_guess = math.inf
-        current__node_with_lowest_guess = math.inf
+        current_node_with_lowest_guess: AStarCell or None = None
         for node in self.discovered_nodes:
-            if node.guess_of_how_cheap_from_start_to_goal_through_me < current_lowest_guess:
+            if node.guess_of_how_cheap_from_start_to_goal_through_me < current_lowest_guess or node.guess_of_how_cheap_from_start_to_goal_through_me == math.inf:
                 current_lowest_guess = node.guess_of_how_cheap_from_start_to_goal_through_me
-                current__node_with_lowest_guess = node
-        return current__node_with_lowest_guess
+                current_node_with_lowest_guess = node
+        return current_node_with_lowest_guess
 
     def reconstruct_path(self):
         current_node = self.goal
-        total_path = []
         while current_node.came_from:
-            first_position = 0
-            total_path.insert(first_position, current_node)
+            current_node.status = AStarCellStatus.SolutionPath
             current_node = current_node.came_from
-        return total_path
 
     def get_neighbours(self, current_node):
         neighbours = []
@@ -126,7 +129,7 @@ class AStarMaze:
                     current_row = current_node.row_number + x
                     current_column = current_node.column_number + y
                     negative_row_or_column = current_row < 0 or current_column < 0
-                    surpassed_length = current_row > len(self.grid) or current_column > len(self.grid[current_row])
+                    surpassed_length = current_row >= len(self.grid) or current_column >= len(self.grid[current_row])
                     if negative_row_or_column or surpassed_length:
                         # We moved out of the grid, skip.
                         pass
