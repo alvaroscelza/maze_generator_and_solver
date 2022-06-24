@@ -50,7 +50,7 @@ class AStarMaze:
             for column in range(columns_amount):
                 new_cell = AStarCell(row_number=row, column_number=column)
                 self.grid[row].append(new_cell)
-        self.goal = self.grid[-1][-1]
+        self.goal = self.grid[0][-1]
         self.generate_obstacles()
 
     def generate_obstacles(self):
@@ -83,6 +83,7 @@ class AStarMaze:
             if current_node == self.goal:
                 # Success
                 self.reconstruct_path()
+                return True
 
             self.discovered_nodes.remove(current_node)
             current_neighbours = self.get_neighbours(current_node)
