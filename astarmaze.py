@@ -162,8 +162,8 @@ class AStarMaze:
         return False  # Failure: discovered_nodes is empty but goal was not reached.
 
     def heuristic_function(self, cell):
-        row_difference_to_goal = self.goal.row_number - cell.row_number
-        column_difference_to_goal = self.goal.column_number - cell.column_number
+        row_difference_to_goal = abs(self.goal.row_number - cell.row_number)
+        column_difference_to_goal = abs(self.goal.column_number - cell.column_number)
         return max(row_difference_to_goal, column_difference_to_goal)
 
     def get_node_with_lowest_guest_of_how_cheap(self):
