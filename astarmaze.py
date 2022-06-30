@@ -133,7 +133,7 @@ class AStarMaze:
         print('')
 
     def solve_using_a_star_algorithm(self):
-        start = self.grid[-1][0]
+        start = self.grid[-3][2]
         start.cheapest_path_cost_from_start = 0
         start.guess_of_how_cheap_from_start_to_goal_through_me = self.heuristic_function(start)
         self.discovered_nodes.append(start)
@@ -207,7 +207,20 @@ class AStarMaze:
                             neighbours.append(self.grid[current_row][current_column])
         return neighbours
 
+    def distance(self, current_node, neighbour):
+        simple_path_cost = 1
+        if self.is_diagonal(current_node, neighbour):
+            return math.sqrt(2)
+        else:
+            return simple_path_cost
+
     @staticmethod
-    def distance(current_node, neighbour):
-        # Since this is a simple grid, every node is adjacent to its neighbours. Therefore, distance is 1.
-        return 1
+    def is_diagonal(current_node: AStarCell, neighbour: AStarCell):
+        steps = [-1, +1]
+        for x in steps:
+            for y in steps:
+                current_row = current_node.row_number + x
+                current_column = current_node.column_number + y
+                if neighbour.row_number == current_row and neighbour.column_number == current_column:
+                    return True
+        return False
